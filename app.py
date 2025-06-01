@@ -11,6 +11,9 @@ HF_REPO_NAME = "hoax_detector"  # Nama repo di HF
 
 @st.cache_resource
 def load_model():
+    from huggingface_hub import login
+    if "HF_TOKEN" in os.environ:
+        login(token=os.environ["HF_TOKEN"])
     try:
         # Load tokenizer dari Hugging Face
         tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}")
