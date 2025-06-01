@@ -8,7 +8,7 @@ import json
 def load_model():
     model_path = "Syetsuki/hoax-detector"
     tokenizer = BertTokenizerFast.from_pretrained(f"{model_path}/tokenizer")
-    model = BertForSequenceClassification.from_pretrained(model_path)
+    model = BertForSequenceClassification.from_pretrained(f"{model_path}")
     model.eval()
     return tokenizer, model
 
