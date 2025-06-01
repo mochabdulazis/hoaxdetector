@@ -1,5 +1,6 @@
 --prefer-binary
 torch==2.5.0
+transformers==4.30.2
 tokenizers==0.13.3
-scikit-learn
 streamlit==1.45.1
+scikit-learn
