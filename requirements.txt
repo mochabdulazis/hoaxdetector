@@ -2,5 +2,5 @@ streamlit
 torch==2.0.1
 transformers==4.30.2
 huggingface_hub
-tokenizers
+tokenizers==0.13.3
 scikit-learn
