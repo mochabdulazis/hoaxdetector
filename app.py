@@ -13,10 +13,10 @@ HF_REPO_NAME = "hoax_detector"  # Nama repo di HF
 def load_model():
     try:
         # Load tokenizer dari Hugging Face
-        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model")
+        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}")
         
         # Load model dari Hugging Face
-        model = BertForSequenceClassification.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model")
+        model = BertForSequenceClassification.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}")
         
         return tokenizer, model
     except Exception as e:
