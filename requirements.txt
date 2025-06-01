@@ -1,5 +1,5 @@
 --prefer-binary
-torch==2.2.2
+torch==2.5.0
 transformers==4.30.2
 tokenizers==0.13.3
 streamlit==1.27.2
