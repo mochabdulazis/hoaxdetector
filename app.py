@@ -7,9 +7,9 @@ import json
 @st.cache_resource
 def load_model():
     model_path = "Syetsuki/hoax-detector"
-    tokenizer = BertTokenizerFast.from_pretrained(f"{model_path}/tokenizer")
+    tokenizer = BertTokenizerFast.from_pretrained(f"{model_path}")
     model = BertForSequenceClassification.from_pretrained("indobenchmark/indobert-base-p1", num_labels=2)
-    model.load_state_dict(torch.load(f"{model_path}/hoax_detector_model.pth", map_location=torch.device("cpu")))
+    model.load_state_dict(torch.load(f"{model_path}/pytorch_model.bin", map_location=torch.device("cpu")))
     model.eval()
     return tokenizer, model
 
