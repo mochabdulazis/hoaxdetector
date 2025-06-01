@@ -1,3 +1,4 @@
+--prefer-binary
 torch==2.5.0
 tokenizers==0.13.3
 scikit-learn
