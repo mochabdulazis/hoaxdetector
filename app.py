@@ -6,7 +6,7 @@ import json
 # Load model & tokenizer
 @st.cache_resource
 def load_model():
-    model_path = "Syetsuki/hoax-detector"
+    model_path = "Syetsuki/hoax-detector/tree/main"
     tokenizer = BertTokenizerFast.from_pretrained(f"{model_path}/tokenizer")
     model = BertForSequenceClassification.from_pretrained(f"{model_path}")
     model.eval()
