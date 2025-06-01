@@ -4,7 +4,7 @@ import os
 from transformers import BertTokenizerFast, BertForSequenceClassification
 
 # Ganti dengan username dan nama repository Hugging Face kamu
-HF_USERNAME = "syetsuki"  # ← GANTI INI
+HF_USERNAME = "Syetsuki"  # ← GANTI INI
 HF_REPO_NAME = "hoax_detector"  # ← PASTIKAN NAMA REPO BENAR
 
 @st.cache_resource
