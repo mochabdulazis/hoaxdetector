@@ -6,14 +6,14 @@ from huggingface_hub import hf_hub_download
 import os
 
 # Ganti dengan username dan nama repository Hugging Face kamu
-HF_USERNAME = "Syetsuki"  # Ganti dengan username HF kamu
+HF_USERNAME = "syetsuki"  # Ganti dengan username HF kamu
 HF_REPO_NAME = "hoax_detector"  # Nama repo di HF
 
 @st.cache_resource
 def load_model():
     try:
         # Load tokenizer dari Hugging Face
-        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model/tokenizer")
+        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model")
         
         # Load model dari Hugging Face
         model = BertForSequenceClassification.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model")
