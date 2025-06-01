@@ -1,51 +1,94 @@
 import streamlit as st
 import torch
 from transformers import BertTokenizerFast, BertForSequenceClassification
-import json
+import pickle
+from huggingface_hub import hf_hub_download
+import os
 
-# Load model & tokenizer
+# Ganti dengan username dan nama repository Hugging Face kamu
+HF_USERNAME = "Syetsuki"  # Ganti dengan username HF kamu
+HF_REPO_NAME = "hoax_detector"  # Nama repo di HF
+
 @st.cache_resource
 def load_model():
-    model_path = "Syetsuki/hoax-detector/tree/main"
-    tokenizer = BertTokenizerFast.from_pretrained(f"{model_path}/tokenizer")
-    model = BertForSequenceClassification.from_pretrained(f"{model_path}")
+    try:
+        # Load tokenizer dari Hugging Face
+        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model/tokenizer")
+        
+        # Load model dari Hugging Face
+        model = BertForSequenceClassification.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}/hoax_detector_model")
+        
+        return tokenizer, model
+    except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return None, None
+
+def predict_hoax(text, tokenizer, model):
+    # Preprocessing
+    inputs = tokenizer(
+        text,
+        padding=True,
+        truncation=True,
+        max_length=512,
+        return_tensors="pt"
+    )
+    
+    # Prediction
     model.eval()
-    return tokenizer, model
-
-
-tokenizer, model = load_model()
-
-id2label = {
-    0: "Non-Hoax",
-    1: "Hoax"
-}
-
-def predict_news(text):
-    inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
     with torch.no_grad():
         outputs = model(**inputs)
-        probs = torch.softmax(outputs.logits, dim=1)
-    probs = probs[0]
-    pred_id = torch.argmax(probs).item()
-    confidence = probs[pred_id].item()
-    result = {
-        'prediction': id2label[pred_id].upper(),
-        'confidence': f"{confidence * 100:.1f}%",
-        'probabilities': {
-            'Non-Hoax': f"{probs[0].item():.3f}",
-            'Hoax': f"{probs[1].item():.3f}"
-        }
-    }
-    return result
+        predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
+        predicted_class = torch.argmax(predictions, dim=-1).item()
+        confidence = predictions.max().item()
+    
+    # Assuming 0 = Not Hoax, 1 = Hoax
+    label = "Hoax" if predicted_class == 1 else "Not Hoax"
+    
+    return label, confidence
 
-# Streamlit UI
-st.title("📰 Hoax Detector IndoBERT")
-text_input = st.text_area("Masukkan judul atau isi berita:")
+def main():
+    st.title("🔍 Hoax Detector")
+    st.write("Masukkan teks berita untuk mendeteksi apakah itu hoax atau bukan.")
+    
+    # Load model
+    tokenizer, model = load_model()
+    
+    if tokenizer is None or model is None:
+        st.error("Gagal memuat model. Silakan coba lagi nanti.")
+        return
+    
+    # Input text
+    text_input = st.text_area(
+        "Masukkan teks berita:",
+        height=200,
+        placeholder="Ketik atau paste teks berita di sini..."
+    )
+    
+    if st.button("🔍 Analisis"):
+        if text_input.strip():
+            with st.spinner("Menganalisis..."):
+                try:
+                    label, confidence = predict_hoax(text_input, tokenizer, model)
+                    
+                    # Display results
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        if label == "Hoax":
+                            st.error(f"⚠️ **{label}**")
+                        else:
+                            st.success(f"✅ **{label}**")
+                    
+                    with col2:
+                        st.metric("Confidence", f"{confidence:.2%}")
+                    
+                    # Progress bar for confidence
+                    st.progress(confidence)
+                    
+                except Exception as e:
+                    st.error(f"Error dalam prediksi: {str(e)}")
+        else:
+            st.warning("Silakan masukkan teks untuk dianalisis.")
 
-if st.button("Deteksi"):
-    if text_input.strip() == "":
-        st.warning("Tolong masukkan teks terlebih dahulu.")
-    else:
-        result = predict_news(text_input)
-        st.success("Hasil Deteksi:")
-        st.json(result)
+if __name__ == "__main__":
+    main()
