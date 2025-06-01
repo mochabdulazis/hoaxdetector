@@ -5,7 +5,7 @@ from transformers import BertTokenizerFast, BertForSequenceClassification
 
 # Ganti dengan username dan nama repository Hugging Face kamu
 HF_USERNAME = "Syetsuki"  # ← GANTI INI
-HF_REPO_NAME = "hoax_detector"  # ← PASTIKAN NAMA REPO BENAR
+HF_REPO_NAME = "hoax-detector"  # ← PASTIKAN NAMA REPO BENAR
 
 @st.cache_resource
 def load_model():
