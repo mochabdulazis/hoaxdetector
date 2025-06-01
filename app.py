@@ -1,40 +1,30 @@
 import streamlit as st
-import torch
-import os
-from transformers import BertTokenizerFast, BertForSequenceClassification
 
-# Ganti dengan username dan nama repository Hugging Face kamu
-HF_USERNAME = "Syetsuki"  # ← GANTI INI
-HF_REPO_NAME = "hoax-detector"  # ← PASTIKAN NAMA REPO BENAR
+# Import dengan error handling untuk PyTorch
+try:
+    import torch
+    torch.set_num_threads(1)  # Mengurangi konflik threading
+    from transformers import BertTokenizerFast, BertForSequenceClassification
+except Exception as e:
+    st.error(f"Error importing libraries: {e}")
+    st.stop()
+
+# Repository info - PUBLIC, tidak butuh token
+MODEL_NAME = "syetsuki/hoax-detector"
 
 @st.cache_resource
 def load_model():
-    # Login ke Hugging Face jika ada token (untuk private repos)
     try:
-        from huggingface_hub import login
-        if "HF_TOKEN" in os.environ:
-            login(token=os.environ["HF_TOKEN"])
-    except ImportError:
-        pass  # huggingface_hub mungkin tidak diinstall
-    
-    try:
-        model_name = f"{HF_USERNAME}/{HF_REPO_NAME}"
+        st.info(f"Loading model: {MODEL_NAME}")
         
-        # Load tokenizer dari Hugging Face
-        tokenizer = BertTokenizerFast.from_pretrained(model_name)
+        # Load langsung tanpa login (karena public repo)
+        tokenizer = BertTokenizerFast.from_pretrained(MODEL_NAME)
+        model = BertForSequenceClassification.from_pretrained(MODEL_NAME)
         
-        # Load model dari Hugging Face
-        model = BertForSequenceClassification.from_pretrained(model_name)
-        
-        st.success("✅ Model berhasil dimuat!")
         return tokenizer, model
         
     except Exception as e:
-        st.error(f"❌ Error loading model: {str(e)}")
-        st.info("💡 Pastikan:")
-        st.info("1. Username dan nama repository Hugging Face benar")
-        st.info("2. Repository bersifat public atau token HF sudah diset")
-        st.info("3. Files model lengkap di repository")
+        st.error(f"Error loading model: {str(e)}")
         return None, None
 
 def predict_hoax(text, tokenizer, model):
@@ -55,27 +45,27 @@ def predict_hoax(text, tokenizer, model):
         predicted_class = torch.argmax(predictions, dim=-1).item()
         confidence = predictions.max().item()
     
-    # Assuming 0 = Not Hoax, 1 = Hoax
     label = "Hoax" if predicted_class == 1 else "Not Hoax"
-    
     return label, confidence
 
 def main():
     st.title("🔍 Hoax Detector")
-    st.write("Masukkan teks berita untuk mendeteksi apakah itu hoax atau bukan.")
+    st.write("Deteksi berita hoax menggunakan AI")
     
     # Load model
     tokenizer, model = load_model()
     
     if tokenizer is None or model is None:
-        st.error("Gagal memuat model. Silakan coba lagi nanti.")
+        st.error("Gagal memuat model")
         return
     
-    # Input text
+    st.success("✅ Model siap digunakan!")
+    
+    # Input
     text_input = st.text_area(
         "Masukkan teks berita:",
-        height=200,
-        placeholder="Ketik atau paste teks berita di sini..."
+        height=150,
+        placeholder="Paste teks berita di sini..."
     )
     
     if st.button("🔍 Analisis"):
@@ -84,9 +74,7 @@ def main():
                 try:
                     label, confidence = predict_hoax(text_input, tokenizer, model)
                     
-                    # Display results
                     col1, col2 = st.columns(2)
-                    
                     with col1:
                         if label == "Hoax":
                             st.error(f"⚠️ **{label}**")
@@ -94,15 +82,14 @@ def main():
                             st.success(f"✅ **{label}**")
                     
                     with col2:
-                        st.metric("Confidence", f"{confidence:.2%}")
+                        st.metric("Confidence", f"{confidence:.1%}")
                     
-                    # Progress bar for confidence
                     st.progress(confidence)
                     
                 except Exception as e:
-                    st.error(f"Error dalam prediksi: {str(e)}")
+                    st.error(f"Error: {str(e)}")
         else:
-            st.warning("Silakan masukkan teks untuk dianalisis.")
+            st.warning("Masukkan teks terlebih dahulu")
 
 if __name__ == "__main__":
     main()
