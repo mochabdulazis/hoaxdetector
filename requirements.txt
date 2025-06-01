@@ -1,6 +1,6 @@
 streamlit
-torch
-transformers
+torch==2.0.1
+transformers==4.30.2
 huggingface_hub
 tokenizers
 scikit-learn
