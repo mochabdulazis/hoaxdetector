@@ -1,29 +1,40 @@
 import streamlit as st
 import torch
-from transformers import BertTokenizerFast, BertForSequenceClassification
-import pickle
-from huggingface_hub import hf_hub_download
 import os
+from transformers import BertTokenizerFast, BertForSequenceClassification
 
 # Ganti dengan username dan nama repository Hugging Face kamu
-HF_USERNAME = "syetsuki"  # Ganti dengan username HF kamu
-HF_REPO_NAME = "hoax_detector"  # Nama repo di HF
+HF_USERNAME = "syetsuki"  # ← GANTI INI
+HF_REPO_NAME = "hoax_detector"  # ← PASTIKAN NAMA REPO BENAR
 
 @st.cache_resource
 def load_model():
-    from huggingface_hub import login
-    if "HF_TOKEN" in os.environ:
-        login(token=os.environ["HF_TOKEN"])
+    # Login ke Hugging Face jika ada token (untuk private repos)
     try:
+        from huggingface_hub import login
+        if "HF_TOKEN" in os.environ:
+            login(token=os.environ["HF_TOKEN"])
+    except ImportError:
+        pass  # huggingface_hub mungkin tidak diinstall
+    
+    try:
+        model_name = f"{HF_USERNAME}/{HF_REPO_NAME}"
+        
         # Load tokenizer dari Hugging Face
-        tokenizer = BertTokenizerFast.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}")
+        tokenizer = BertTokenizerFast.from_pretrained(model_name)
         
         # Load model dari Hugging Face
-        model = BertForSequenceClassification.from_pretrained(f"{HF_USERNAME}/{HF_REPO_NAME}")
+        model = BertForSequenceClassification.from_pretrained(model_name)
         
+        st.success("✅ Model berhasil dimuat!")
         return tokenizer, model
+        
     except Exception as e:
-        st.error(f"Error loading model: {str(e)}")
+        st.error(f"❌ Error loading model: {str(e)}")
+        st.info("💡 Pastikan:")
+        st.info("1. Username dan nama repository Hugging Face benar")
+        st.info("2. Repository bersifat public atau token HF sudah diset")
+        st.info("3. Files model lengkap di repository")
         return None, None
 
 def predict_hoax(text, tokenizer, model):
