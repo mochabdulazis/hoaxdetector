@@ -10,7 +10,7 @@ except Exception as e:
     st.stop()
 
 # Repository info - PUBLIC, tidak butuh token
-MODEL_NAME = "syetsuki/hoax-detector"
+MODEL_NAME = "syetsuki/hoax-detector"  # Model Anda sendiri
 
 @st.cache_resource
 def load_model():
