@@ -15,13 +15,11 @@ MODEL_NAME = "syetsuki/hoax-detector"  # Model Anda sendiri
 @st.cache_resource
 def load_model():
     try:
-        st.info(f"Loading model: {MODEL_NAME}")
         
         # Method 1: Coba dengan AutoTokenizer dan AutoModel (lebih fleksibel)
         try:
             tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
             model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
-            st.success("✅ Model loaded dengan Auto classes")
             return tokenizer, model
         except Exception as e1:
             st.warning(f"Auto classes gagal: {e1}")
@@ -95,11 +93,6 @@ def predict_hoax(text, tokenizer, model):
 def main():
     st.title("🔍 Hoax Detector")
     st.write("Deteksi berita hoax menggunakan AI")
-    
-    # Info tentang model
-    with st.expander("ℹ️ Info Model"):
-        st.write(f"Model: {MODEL_NAME}")
-        st.write("Jika model utama tidak tersedia, sistem akan menggunakan fallback model.")
     
     # Load model
     tokenizer, model = load_model()
