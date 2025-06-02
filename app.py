@@ -92,7 +92,7 @@ def predict_hoax(text, tokenizer, model):
 
 def main():
     st.title("🔍 Hoax Detector")
-    st.write("Deteksi berita hoax menggunakan AI")
+    st.sucess("Deteksi berita hoax menggunakan AI")
     
     # Load model
     tokenizer, model = load_model()
