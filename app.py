@@ -17,8 +17,15 @@ def load_model():
     try:
         st.info(f"Loading model: {MODEL_NAME}")
         
-        # Load langsung tanpa login (karena public repo)
-        tokenizer = BertTokenizerFast.from_pretrained(MODEL_NAME)
+        # Coba load tokenizer dari model
+        try:
+            tokenizer = BertTokenizerFast.from_pretrained(MODEL_NAME)
+        except:
+            # Fallback: gunakan base BERT tokenizer
+            st.warning("Menggunakan base BERT tokenizer sebagai fallback")
+            tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
+        
+        # Load model
         model = BertForSequenceClassification.from_pretrained(MODEL_NAME)
         
         return tokenizer, model
